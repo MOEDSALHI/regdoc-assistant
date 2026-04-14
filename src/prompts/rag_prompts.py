@@ -1,5 +1,7 @@
 # src/prompts/rag_prompts.py
 
+import json
+
 # ---------------------------------------------------------------------------
 # SYSTEM PROMPTS
 # ---------------------------------------------------------------------------
@@ -44,6 +46,30 @@ Step 5 — Final verdict: COMPLIANT / NON-COMPLIANT / NEEDS-CLARIFICATION
 
 Always show your reasoning for each step before the verdict."""
 
+# Structured JSON system prompt.
+# The schema is explicit in the prompt — no ambiguity for the model.
+RAG_STRUCTURED_SYSTEM_PROMPT = """You are RegDoc, a GDPR regulatory assistant.
+
+Always respond with a valid JSON object matching this exact schema:
+{
+  "answer": "your factual answer in 2-4 sentences, or null if unknown",
+  "confidence": "HIGH or MEDIUM or LOW",
+  "citations": [
+    {
+      "document": "document name",
+      "page": 12,
+      "quote": "exact relevant quote from the chunk"
+    }
+  ],
+  "cannot_answer": false
+}
+
+Rules:
+- If the answer is not in the provided context, set cannot_answer=true, answer=null, confidence=LOW.
+- Never invent articles or deadlines not present in the context.
+- Return ONLY the JSON object — no markdown, no explanation outside the JSON.
+- Answer in the same language as the question."""
+
 
 # ---------------------------------------------------------------------------
 # FEW-SHOT EXAMPLES
@@ -80,7 +106,7 @@ def build_rag_messages(
     system_prompt: str = RAG_SYSTEM_PROMPT,
 ) -> list[dict]:
     """
-    Build the message list for a RAG query.
+    Build the message list for a standard RAG query (text response).
 
     Assembles system instructions + retrieved chunks + user question
     into the format expected by Mistral's chat API.
@@ -112,6 +138,30 @@ def build_rag_messages(
     ]
 
 
+def build_rag_structured_messages(
+    question: str,
+    context_chunks: list[str],
+) -> list[dict]:
+    """
+    Build the message list for a RAG query expecting a structured JSON response.
+
+    Uses RAG_STRUCTURED_SYSTEM_PROMPT which enforces the JSON schema.
+    The response must be parsed with parse_structured_response().
+
+    Args:
+        question: User question in natural language.
+        context_chunks: Relevant text chunks retrieved from pgvector.
+
+    Returns:
+        Messages list ready to send to chat_complete().
+    """
+    return build_rag_messages(
+        question=question,
+        context_chunks=context_chunks,
+        system_prompt=RAG_STRUCTURED_SYSTEM_PROMPT,
+    )
+
+
 def build_simple_messages(
     question: str,
     system_prompt: str | None = None,
@@ -141,7 +191,8 @@ def build_few_shot_compliance_messages(text_to_classify: str) -> list[dict]:
     Build few-shot messages for GDPR compliance classification.
 
     Provides 3 labeled examples before the actual classification target.
-    The examples teach the model the expected label + reason format.
+    The examples teach the model the expected label + reason format
+    without requiring explicit format instructions.
 
     Args:
         text_to_classify: The data practice description to classify.
@@ -173,8 +224,9 @@ def build_cot_analysis_messages(practice_description: str) -> list[dict]:
     """
     Build Chain of Thought messages for deep GDPR compliance analysis.
 
-    Forces step-by-step reasoning through 5 GDPR checkpoints
-    before the final verdict. Reduces errors on complex multi-criteria tasks.
+    Forces step-by-step reasoning through 5 GDPR checkpoints before
+    the final verdict. Reduces errors on complex multi-criteria tasks
+    by making each reasoning step explicit and visible to the model.
 
     Args:
         practice_description: Description of the data processing practice to analyze.
@@ -189,3 +241,42 @@ def build_cot_analysis_messages(practice_description: str) -> list[dict]:
             "content": f"Analyze this data processing practice:\n\n{practice_description}",
         },
     ]
+
+
+# ---------------------------------------------------------------------------
+# JSON PARSER
+# ---------------------------------------------------------------------------
+
+def parse_structured_response(raw: str) -> dict:
+    """
+    Parse the model's structured JSON response with a safe fallback.
+
+    Strips markdown code fences if present (models sometimes wrap JSON
+    in ```json ... ``` despite instructions not to).
+
+    Args:
+        raw: Raw string response from chat_complete().
+
+    Returns:
+        Parsed dict matching the RAG structured schema, or a fallback
+        error dict if parsing fails.
+    """
+    # Strip markdown code fences if present
+    cleaned = raw.strip()
+    if cleaned.startswith("```"):
+        lines = cleaned.split("\n")
+        # Remove first line (```json or ```) and last line (```)
+        cleaned = "\n".join(lines[1:-1]).strip()
+
+    try:
+        return json.loads(cleaned)
+    except json.JSONDecodeError as e:
+        # Fallback — never crash the API on a parse error
+        return {
+            "answer": None,
+            "confidence": "LOW",
+            "citations": [],
+            "cannot_answer": True,
+            "_parse_error": str(e),
+            "_raw_response": raw[:200],  # truncated for logs
+        }
