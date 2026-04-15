@@ -4,8 +4,13 @@ from loguru import logger
 
 from src.api.schemas.ask import AskRequest, AskResponse, Citation
 from src.prompts.rag_prompts import (
-    build_rag_structured_messages,
+    RAG_STRUCTURED_SYSTEM_PROMPT,
     parse_structured_response,
+)
+from src.security.prompt_guard import (
+    detect_direct_injection,
+    sanitize_chunks,
+    build_sandwiched_user_message,
 )
 from src.services.llm_client import chat_complete
 from src.services.token_counter import fits_in_context, log_context_breakdown
@@ -42,24 +47,48 @@ async def _retrieve_chunks_stub(question: str, top_k: int) -> list[str]:
 @router.post("/ask", response_model=AskResponse)
 async def ask(request: AskRequest) -> AskResponse:
     """
-    Answer a regulatory question using the RAG pipeline.
+    Answer a regulatory question using the RAG pipeline with injection guards.
 
     Pipeline:
-    1. Retrieve relevant chunks (stub → pgvector in Bloc 2)
-    2. Validate context window
-    3. Build structured prompt
-    4. Call Mistral AI
-    5. Parse JSON response
-    6. Return typed AskResponse with citations
+    1. Detect direct injection in user question → HTTP 400
+    2. Retrieve relevant chunks (stub → pgvector in Bloc 2)
+    3. Sanitize chunks against indirect injection
+    4. Build sandwiched prompt (context + reminder + question)
+    5. Validate context window
+    6. Call Mistral AI
+    7. Parse JSON response
+    8. Return typed AskResponse
     """
+    # Defense 1 — direct injection detection
+    if detect_direct_injection(request.question):
+        logger.warning("Blocked injection attempt | question='{}'", request.question)
+        raise HTTPException(
+            status_code=400,
+            detail="Your question contains patterns that cannot be processed.",
+        )
+
     logger.info("RAG query | question='{}' | top_k={}", request.question, request.top_k)
 
-    chunks = await _retrieve_chunks_stub(request.question, request.top_k)
+    # Retrieve + sanitize
+    raw_chunks = await _retrieve_chunks_stub(request.question, request.top_k)
+    chunks = sanitize_chunks(raw_chunks)  # Defense 2 — indirect injection
 
-    messages = build_rag_structured_messages(
+    if not chunks:
+        raise HTTPException(
+            status_code=400,
+            detail="No valid document chunks available after sanitization.",
+        )
+
+    # Defense 3 — sandwich prompt structure
+    user_message = build_sandwiched_user_message(
         question=request.question,
         context_chunks=chunks,
     )
+
+    messages = [
+        {"role": "system", "content": RAG_STRUCTURED_SYSTEM_PROMPT},
+        {"role": "user", "content": user_message},
+    ]
 
     if not fits_in_context(messages):
         raise HTTPException(
