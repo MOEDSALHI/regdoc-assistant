@@ -17,7 +17,7 @@ _DIRECT_INJECTION_PATTERNS = [
     r"new\s+system\s+prompt",
     r"override\s+(system|instructions?)",
     r"reveal\s+(your\s+)?(system\s+)?prompt",
-    r"print\s+(your\s+)?(system\s+)?prompt",
+    r"print\s+(your\s+)?(system\s+)?(prompt|instructions?)",
     r"what\s+(are\s+your|is\s+your)\s+(system\s+)?instructions?",
     r"jailbreak",
     r"dan\s+mode",
