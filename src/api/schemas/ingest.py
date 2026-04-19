@@ -19,9 +19,10 @@ class IngestRequest(BaseModel):
 
 class IngestResponse(BaseModel):
     doc_id: int
-    filename: str
-    chunks_count: int
-    pages_processed: int
-    avg_tokens_per_chunk: float
-    latency_ms: int
     skipped: bool
+    # Optional fields — None when skipped=True (document already existed)
+    filename: str | None = None
+    chunks_count: int | None = None
+    pages_processed: int | None = None
+    avg_tokens_per_chunk: float | None = None
+    latency_ms: int | None = None
