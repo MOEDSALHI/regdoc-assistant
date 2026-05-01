@@ -34,6 +34,11 @@ async def lifespan(app: FastAPI):
     await apply_schema()    # create tables/indexes if not exist (idempotent)
     logger.info("Database ready")
 
+    # Précharger le cross-encoder au démarrage — évite 35s au premier appel
+    from src.rag.reranker import _get_reranker
+    _get_reranker()
+    logger.info("Cross-encoder ready")
+
     yield  # <-- application serves requests here
 
     # SHUTDOWN
