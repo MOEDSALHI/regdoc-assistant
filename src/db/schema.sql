@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS chunks (
     page_number     INTEGER,
     section_title   TEXT,
     embedding       vector(1024),
+    parent_id       INTEGER REFERENCES chunks(id) ON DELETE CASCADE,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -33,3 +34,4 @@ CREATE INDEX IF NOT EXISTS chunks_embedding_hnsw_idx
 -- Indexes for metadata filtering
 CREATE INDEX IF NOT EXISTS chunks_document_id_idx ON chunks(document_id);
 CREATE INDEX IF NOT EXISTS chunks_doc_type_idx ON documents(doc_type);
+CREATE INDEX IF NOT EXISTS chunks_parent_id_idx ON chunks(parent_id);
