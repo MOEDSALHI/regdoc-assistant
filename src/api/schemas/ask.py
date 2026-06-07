@@ -1,6 +1,6 @@
 # src/api/schemas/ask.py
+from typing import Literal
 from pydantic import BaseModel, Field
-
 
 class AskRequest(BaseModel):
     question: str = Field(
@@ -22,7 +22,10 @@ class AskRequest(BaseModel):
         le=2.0,
         description="Sampling temperature (0.1=factual, 0.7=creative).",
     )
-
+    retrieval_mode: Literal["naive", "hybrid", "reranked", "hyde"] = Field(
+        default="naive",
+        description="Retrieval strategy: naive (cosine), hybrid (BM25+RRF), reranked (cross-encoder), hyde (hypothetical document).",
+    )
 
 class Citation(BaseModel):
     document: str

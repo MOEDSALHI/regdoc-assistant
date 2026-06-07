@@ -14,8 +14,11 @@ from src.security.prompt_guard import (
 )
 from src.services.llm_client import chat_complete
 from src.services.token_counter import fits_in_context, log_context_breakdown
-from src.rag.retrieval import retrieve_chunks
 
+from src.rag.retrieval import retrieve_chunks
+from src.rag.hybrid_search import hybrid_search
+from src.rag.reranker import retrieve_and_rerank
+from src.rag.query_expansion import hyde_retrieve
 
 router = APIRouter(tags=["rag"])
 
@@ -69,15 +72,36 @@ async def ask(request: AskRequest) -> AskResponse:
             detail="Your question contains patterns that cannot be processed.",
         )
 
-    logger.info("RAG query | question='{}' | top_k={}", request.question, request.top_k)
-
     # Real retrieval from pgvector
-    raw_chunks = await retrieve_chunks(
-        question=request.question,
-        top_k=request.top_k,
-        doc_type="regulatory",
-        min_similarity=0.70,
-    )
+    mode = request.retrieval_mode
+    logger.info("RAG query | question='{}' | top_k={} | mode={}", request.question, request.top_k, mode)
+
+    if mode == "naive":
+        raw_chunks = await retrieve_chunks(
+            question=request.question,
+            top_k=request.top_k,
+            doc_type="regulatory",
+            min_similarity=0.70,
+        )
+    elif mode == "hybrid":
+        raw_chunks = await hybrid_search(
+            question=request.question,
+            top_k=request.top_k,
+            doc_type="regulatory",
+        )
+    elif mode == "reranked":
+        raw_chunks = await retrieve_and_rerank(
+            question=request.question,
+            # top_k=request.top_k,
+            top_k_rerank=request.top_k,
+            doc_type="regulatory",
+        )
+    elif mode == "hyde":
+        raw_chunks = await hyde_retrieve(
+            question=request.question,
+            top_k=request.top_k,
+            doc_type="regulatory",
+        )
 
     chunks = sanitize_chunks(raw_chunks)  # Defense 2 — indirect injection
 
