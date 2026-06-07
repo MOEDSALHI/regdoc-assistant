@@ -1,0 +1,16 @@
+Article 37 — Désignation du délégué à la protection des données
+
+1. Le responsable du traitement et le sous-traitant désignent en tout état de cause un délégué à la protection des données lorsque :
+a) le traitement est effectué par une autorité publique ou un organisme public, à l'exception des juridictions agissant dans l'exercice de leur fonction juridictionnelle ;
+b) les activités de base du responsable du traitement ou du sous-traitant consistent en des opérations de traitement qui, du fait de leur nature, de leur portée et/ou de leurs finalités, exigent un suivi régulier et systématique à grande échelle des personnes concernées ;
+c) les activités de base du responsable du traitement ou du sous-traitant consistent en un traitement à grande échelle de catégories particulières de données visées à l'article 9 et de données à caractère personnel relatives à des condamnations pénales et à des infractions visées à l'article 10.
+
+2. Un groupe d'entreprises peut désigner un seul délégué à la protection des données à condition qu'il soit facilement joignable à partir de chaque lieu d'établissement.
+
+3. Lorsque le responsable du traitement ou le sous-traitant est une autorité publique ou un organisme public, un seul délégué à la protection des données peut être désigné pour plusieurs autorités ou organismes de ce type, compte tenu de leur structure organisationnelle et de leur taille.
+
+5. Le délégué à la protection des données est désigné sur la base de ses qualités professionnelles et, en particulier, de ses connaissances spécialisées du droit et des pratiques en matière de protection des données, et de sa capacité à accomplir les missions visées à l'article 39.
+
+6. Le délégué à la protection des données peut être un membre du personnel du responsable du traitement ou du sous-traitant, ou exercer ses missions sur la base d'un contrat de services.
+
+7. Le responsable du traitement ou le sous-traitant publie les coordonnées du délégué à la protection des données et les communique à l'autorité de contrôle.
