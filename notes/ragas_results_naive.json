@@ -1,0 +1,98 @@
+[
+  {
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.959,
+    "context_recall": 1.0,
+    "context_precision": 1.0,
+    "question": "Quels sont les six principes fondamentaux du traitement des données personnelles selon le RGPD ?",
+    "source_article": "Article 5"
+  },
+  {
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.906,
+    "context_recall": 1.0,
+    "context_precision": 1.0,
+    "question": "Qu'est-ce que le principe de minimisation des données selon l'Article 5 du RGPD ?",
+    "source_article": "Article 5"
+  },
+  {
+    "faithfulness": 0.857,
+    "answer_relevancy": 0.939,
+    "context_recall": 1.0,
+    "context_precision": 1.0,
+    "question": "Dans quels cas une personne peut-elle exercer son droit à l'effacement selon l'Article 17 ?",
+    "source_article": "Article 17"
+  },
+  {
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.938,
+    "context_recall": 1.0,
+    "context_precision": 1.0,
+    "question": "Quelles sont les exceptions au droit à l'effacement prévues par le RGPD ?",
+    "source_article": "Article 17"
+  },
+  {
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.94,
+    "context_recall": 1.0,
+    "context_precision": 1.0,
+    "question": "Quelles mesures techniques et organisationnelles le RGPD exige-t-il pour assurer la sécurité des données ?",
+    "source_article": "Article 32"
+  },
+  {
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.915,
+    "context_recall": 1.0,
+    "context_precision": 1.0,
+    "question": "Comment évaluer le niveau de sécurité approprié selon l'Article 32 du RGPD ?",
+    "source_article": "Article 32"
+  },
+  {
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.906,
+    "context_recall": 1.0,
+    "context_precision": 1.0,
+    "question": "Quand une analyse d'impact relative à la protection des données (AIPD) est-elle obligatoire ?",
+    "source_article": "Article 35"
+  },
+  {
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.904,
+    "context_recall": 1.0,
+    "context_precision": 1.0,
+    "question": "Que doit contenir une analyse d'impact (AIPD) selon l'Article 35 du RGPD ?",
+    "source_article": "Article 35"
+  },
+  {
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.935,
+    "context_recall": 1.0,
+    "context_precision": 1.0,
+    "question": "Dans quels cas la désignation d'un délégué à la protection des données (DPO) est-elle obligatoire ?",
+    "source_article": "Article 37"
+  },
+  {
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.967,
+    "context_recall": 1.0,
+    "context_precision": 1.0,
+    "question": "Quelles sont les missions du délégué à la protection des données selon le RGPD ?",
+    "source_article": "Article 37"
+  },
+  {
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.961,
+    "context_recall": 1.0,
+    "context_precision": 1.0,
+    "question": "Quels sont les deux niveaux d'amendes administratives prévus par le RGPD ?",
+    "source_article": "Article 83"
+  },
+  {
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.952,
+    "context_recall": 1.0,
+    "context_precision": 1.0,
+    "question": "Quels critères la CNIL utilise-t-elle pour déterminer le montant d'une sanction ?",
+    "source_article": "Article 83"
+  }
+]
