@@ -8,6 +8,10 @@ class IngestRequest(BaseModel):
         min_length=100,
         description="Raw text to ingest (use for testing without PDF upload).",
     )
+    filename: str = Field(
+        default="inline_text.txt",
+        description="Logical filename for idempotency tracking.",
+    )
     doc_type: str = Field(
         default="regulatory",
         description="Document type: regulatory, guide, recommendation.",

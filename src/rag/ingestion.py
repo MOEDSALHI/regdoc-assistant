@@ -92,6 +92,7 @@ async def ingest_document(
     chunk_size: int = 512,
     overlap: int = 64,
     force_reingest: bool = False,
+    filename: str | None = None, 
 ) -> dict:
     """
     Full ingestion pipeline: source → chunks → embeddings → pgvector.
@@ -122,7 +123,7 @@ async def ingest_document(
         pages = extract_text_from_pdf(source)
     else:
         # Plain text input (for testing)
-        filename = "inline_text.txt"
+        filename = filename or "inline_text.txt" 
         pages = extract_text_from_string(source)
 
     # Step 1 — Idempotency check

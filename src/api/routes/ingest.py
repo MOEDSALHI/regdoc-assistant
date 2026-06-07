@@ -22,5 +22,6 @@ async def ingest(request: IngestRequest) -> IngestResponse:
         chunk_size=request.chunk_size,
         overlap=request.overlap,
         force_reingest=request.force_reingest,
+        filename=request.filename,
     )
     return IngestResponse(**summary)
