@@ -1,0 +1,38 @@
+services:
+  pgvector:
+    image: pgvector/pgvector:pg16
+    container_name: regdoc-pgvector
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: ragdb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"   # exposé pour debug local (psql, IDE) — retirer en prod
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ragdb"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: regdoc-api
+    depends_on:
+      pgvector:
+        condition: service_healthy
+    environment:
+      # Override DATABASE_URL: use internal hostname, not localhost
+      DATABASE_URL: postgresql+asyncpg://postgres:secret@pgvector:5432/ragdb
+    env_file:
+      - .env   # MISTRAL_API_KEY and other secrets
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
