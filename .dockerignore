@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+
+# Project
+.env
+.env.local
+notebooks/
+notes/
+pdf/
+tests/evaluation/rgpd_docs/
+
+# Git / IDE
+.git/
+.gitignore
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docs
+README.md
+CLAUDE.md
+REGDOC_ROADMAP.md
