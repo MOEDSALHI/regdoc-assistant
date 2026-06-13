@@ -103,5 +103,8 @@ jobs:
 
       - name: Smoke test the image
         run: |
-          docker run --rm regdoc-assistant:ci \
+          docker run --rm \
+            -e MISTRAL_API_KEY=dummy_for_smoke_test \
+            -e DATABASE_URL=postgresql+asyncpg://dummy:dummy@localhost:5432/dummy \
+            regdoc-assistant:ci \
             python -c "from main import app; print('Image OK, app importable')"
