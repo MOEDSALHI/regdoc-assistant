@@ -4,11 +4,13 @@ from contextlib import asynccontextmanager
 import uvicorn
 from fastapi import FastAPI
 from loguru import logger
+from prometheus_fastapi_instrumentator import Instrumentator
 
 from src.api.routes.ask import router as ask_router
 from src.api.routes.chat import router as chat_router
 from src.api.routes.health import router as health_router
 from src.api.routes.ingest import router as ingest_router
+from src.api.routes.metrics import router as metrics_router
 from src.config import settings
 from src.db.database import apply_schema, close_pool, init_pool
 
@@ -53,10 +55,22 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# -----------------------------------------------------------------------------
+# Prometheus instrumentation — must be set up before include_router calls
+# so middleware captures all routes uniformly.
+# Exposes /metrics endpoint at the application root.
+# -----------------------------------------------------------------------------
+Instrumentator(
+    should_group_status_codes=True,
+    should_ignore_untemplated=True,
+    excluded_handlers=["/health", "/metrics"],
+).instrument(app)
+
 app.include_router(health_router)
 app.include_router(chat_router)
 app.include_router(ask_router)
 app.include_router(ingest_router)
+app.include_router(metrics_router)
 
 
 if __name__ == "__main__":

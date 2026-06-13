@@ -8,6 +8,7 @@ from mistralai.client import Mistral  # v2.x — class lives in mistralai.client
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 from src.config import settings
+from src.observability.metrics import RAG_LLM_DURATION, RAG_LLM_TOKENS
 from src.services.token_counter import fits_in_context, log_context_breakdown
 
 
@@ -90,6 +91,10 @@ async def chat_complete(
         latency_ms,
     )
 
+    RAG_LLM_DURATION.labels(model=resolved_model).observe(latency_ms / 1000)
+    RAG_LLM_TOKENS.labels(type="prompt", model=resolved_model).inc(usage.prompt_tokens)
+    RAG_LLM_TOKENS.labels(type="completion", model=resolved_model).inc(usage.completion_tokens)
+
     return response.choices[0].message.content
 
 
@@ -145,6 +150,7 @@ async def chat_stream(
             yield delta
 
     latency_ms = (time.perf_counter() - start) * 1000
+    RAG_LLM_DURATION.labels(model=resolved_model).observe(latency_ms / 1000)
     logger.info(
         "Mistral stream | model={} | temp={} | top_p={} | chunks={} | latency={:.0f}ms",
         resolved_model,
