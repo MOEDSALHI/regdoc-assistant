@@ -11,3 +11,5 @@ settings.json
 .venv
 .env
 .venv/
+# Local working context for Claude Code agent — not for public repo
+CLAUDE.md
