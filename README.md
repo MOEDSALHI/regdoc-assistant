@@ -1,6 +1,6 @@
 # RegDoc Assistant
 
-[![CI](https://github.com/<user>/regdoc-assistant/actions/workflows/ci.yml/badge.svg)](https://github.com/<user>/regdoc-assistant/actions/workflows/ci.yml)
+[![CI](https://github.com/MOEDSALHI/regdoc-assistant/actions/workflows/ci.yml/badge.svg)](https://github.com/MOEDSALHI/regdoc-assistant/actions/workflows/ci.yml)
 
 > RAG (Retrieval-Augmented Generation) pour documents réglementaires français (RGPD, CNIL, ANSSI), avec évaluation chiffrée de 4 stratégies de retrieval et observabilité Prometheus.
 
