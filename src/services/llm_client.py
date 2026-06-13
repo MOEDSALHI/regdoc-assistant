@@ -3,13 +3,14 @@ import time
 from collections.abc import AsyncGenerator
 
 from loguru import logger
+
 # from mistralai import Mistral
 from mistralai.client import Mistral  # v2.x — class lives in mistralai.client
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 from src.config import settings
 from src.observability.metrics import RAG_LLM_DURATION, RAG_LLM_TOKENS
-from src.services.token_counter import fits_in_context, log_context_breakdown
+from src.services.token_counter import fits_in_context
 
 
 def _build_client() -> Mistral:
@@ -33,7 +34,7 @@ def get_client() -> Mistral:
 async def chat_complete(
     messages: list[dict],
     model: str | None = None,
-    temperature: float = 0.1,   # default LOW for RAG — factual accuracy
+    temperature: float = 0.1,  # default LOW for RAG — factual accuracy
     max_tokens: int = 1024,
     top_p: float = 0.9,
 ) -> str:

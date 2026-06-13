@@ -1,6 +1,5 @@
 # src/api/routes/ingest.py
 from fastapi import APIRouter
-from loguru import logger
 
 from src.api.schemas.ingest import IngestRequest, IngestResponse
 from src.rag.ingestion import ingest_document

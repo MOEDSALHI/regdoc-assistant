@@ -1,18 +1,19 @@
 # src/api/routes/metrics.py
 """Prometheus metrics endpoint."""
+
 import os
 
 from fastapi import APIRouter
 from fastapi.responses import Response
-# from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
-from prometheus_client import CollectorRegistry, multiprocess, generate_latest, CONTENT_TYPE_LATEST
 
+# from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
+from prometheus_client import CONTENT_TYPE_LATEST, CollectorRegistry, generate_latest, multiprocess
 
 router = APIRouter(tags=["observability"])
 
 
 # @router.get("/metrics")
-@router.get("/metrics", include_in_schema=False)   # cache de Swagger
+@router.get("/metrics", include_in_schema=False)  # cache de Swagger
 async def metrics() -> Response:
     """
     Expose Prometheus metrics in text format.

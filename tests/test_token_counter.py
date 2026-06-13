@@ -1,11 +1,9 @@
 # tests/test_token_counter.py
-import pytest
 from src.services.token_counter import (
-    count_tokens,
     count_messages_tokens,
+    count_tokens,
     fits_in_context,
     truncate_text_to_tokens,
-    MAX_INPUT_TOKENS,
 )
 
 

@@ -1,15 +1,19 @@
 # tests/test_hybrid_search.py
-import pytest
-from src.rag.hybrid_search import _bm25_search, _reciprocal_rank_fusion, RankedChunk
 from src.db.chunks_repo import ChunkRecord
+from src.rag.hybrid_search import RankedChunk, _bm25_search, _reciprocal_rank_fusion
 
 
 def _make_chunk(id: int, text: str) -> ChunkRecord:
     return ChunkRecord(
-        id=id, document_id=1, chunk_index=id,
-        text=text, token_count=len(text.split()),
-        chunk_strategy="by_article", page_number=1,
-        section_title=None, similarity=0.0,
+        id=id,
+        document_id=1,
+        chunk_index=id,
+        text=text,
+        token_count=len(text.split()),
+        chunk_strategy="by_article",
+        page_number=1,
+        section_title=None,
+        similarity=0.0,
         filename=f"doc{id}.txt",
     )
 
@@ -24,6 +28,7 @@ CORPUS = [
 
 
 # ── BM25 ──────────────────────────────────────────────────────────────────────
+
 
 def test_bm25_returns_results():
     results = _bm25_search("DPIA RSSI", CORPUS, top_k=3)
@@ -55,6 +60,7 @@ def test_bm25_scores_positive():
 
 # ── RRF ───────────────────────────────────────────────────────────────────────
 
+
 def _make_vector_results() -> list[ChunkRecord]:
     """Simulate vector search results ordered by cosine similarity."""
     results = list(CORPUS)
@@ -74,7 +80,7 @@ def test_rrf_returns_ranked_chunks():
 def test_rrf_convergent_signals_rank_highest():
     # chunk appears #1 in both vector and BM25 → should be #1 in RRF
     vector = [CORPUS[2], CORPUS[0], CORPUS[3]]
-    bm25   = [(CORPUS[2], 8.0), (CORPUS[0], 2.0)]
+    bm25 = [(CORPUS[2], 8.0), (CORPUS[0], 2.0)]
     result = _reciprocal_rank_fusion(vector, bm25, top_k=3)
     assert result[0].text == CORPUS[2].text
 
@@ -82,16 +88,16 @@ def test_rrf_convergent_signals_rank_highest():
 def test_rrf_score_formula():
     # Verify RRF score: rank1 in both lists = 1/(60+1) + 1/(60+1) = 0.03279
     vector = [CORPUS[0]]
-    bm25   = [(CORPUS[0], 1.0)]
+    bm25 = [(CORPUS[0], 1.0)]
     result = _reciprocal_rank_fusion(vector, bm25, top_k=1, k=60)
-    expected = 1/(60+1) + 1/(60+1)
+    expected = 1 / (60 + 1) + 1 / (60 + 1)
     assert abs(result[0].rrf_score - expected) < 1e-6
 
 
 def test_rrf_chunk_in_one_list_only():
     # chunk only in vector (not BM25) → lower RRF score
     vector = [CORPUS[0], CORPUS[1]]
-    bm25   = [(CORPUS[0], 5.0)]  # only chunk 0
+    bm25 = [(CORPUS[0], 5.0)]  # only chunk 0
     result = _reciprocal_rank_fusion(vector, bm25, top_k=2, k=60)
     # chunk[0] appears in both → higher score than chunk[1] (vector only)
     assert result[0].text == CORPUS[0].text
@@ -99,6 +105,6 @@ def test_rrf_chunk_in_one_list_only():
 
 def test_rrf_respects_top_k():
     vector = list(CORPUS)
-    bm25   = [(c, 1.0) for c in CORPUS]
+    bm25 = [(c, 1.0) for c in CORPUS]
     result = _reciprocal_rank_fusion(vector, bm25, top_k=2)
     assert len(result) == 2

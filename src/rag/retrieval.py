@@ -5,7 +5,6 @@ from loguru import logger
 
 from src.db.chunks_repo import ChunkRecord, similarity_search
 from src.embeddings.embedder import embed_text
-from src.services.token_counter import count_tokens
 
 
 async def retrieve_chunks(
@@ -56,7 +55,9 @@ async def retrieve_chunks(
     if not records:
         logger.warning(
             "No chunks found | question='{}' | min_similarity={} | top_k={}",
-            question[:60], min_similarity, top_k,
+            question[:60],
+            min_similarity,
+            top_k,
         )
         return []
 

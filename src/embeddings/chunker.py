@@ -18,6 +18,7 @@ class Chunk:
         token_count: Approximate token count for this chunk.
         metadata: Arbitrary metadata (source file, page number, section, etc.).
     """
+
     text: str
     index: int
     token_count: int
@@ -56,7 +57,6 @@ def chunk_fixed_size(
 
     # Approximate word-level splitting (words ~ tokens for estimation)
     # We refine with actual token counting after splitting
-    step = chunk_size - overlap
 
     start_word = 0
     while start_word < len(words):
@@ -71,12 +71,14 @@ def chunk_fixed_size(
         if not chunk_text.strip():
             break
 
-        chunks.append(Chunk(
-            text=chunk_text.strip(),
-            index=index,
-            token_count=tokens,
-            metadata={**meta, "chunk_strategy": "fixed_size"},
-        ))
+        chunks.append(
+            Chunk(
+                text=chunk_text.strip(),
+                index=index,
+                token_count=tokens,
+                metadata={**meta, "chunk_strategy": "fixed_size"},
+            )
+        )
 
         # Advance by step (chunk_size - overlap) words
         # This is an approximation — actual overlap in tokens may vary
@@ -86,9 +88,11 @@ def chunk_fixed_size(
         index += 1
 
     logger.debug(
-        "Fixed-size chunking | input_chars={} | chunks={} | "
-        "chunk_size={} | overlap={}",
-        len(text), len(chunks), chunk_size, overlap,
+        "Fixed-size chunking | input_chars={} | chunks={} | chunk_size={} | overlap={}",
+        len(text),
+        len(chunks),
+        chunk_size,
+        overlap,
     )
 
     return chunks
@@ -179,17 +183,21 @@ def chunk_recursive(
     result = []
     for i, text_chunk in enumerate(chunks_with_overlap):
         if text_chunk:
-            result.append(Chunk(
-                text=text_chunk,
-                index=i,
-                token_count=count_tokens(text_chunk),
-                metadata={**meta, "chunk_strategy": "recursive"},
-            ))
+            result.append(
+                Chunk(
+                    text=text_chunk,
+                    index=i,
+                    token_count=count_tokens(text_chunk),
+                    metadata={**meta, "chunk_strategy": "recursive"},
+                )
+            )
 
     logger.debug(
-        "Recursive chunking | input_chars={} | chunks={} | "
-        "chunk_size={} | overlap={}",
-        len(text), len(result), chunk_size, overlap,
+        "Recursive chunking | input_chars={} | chunks={} | chunk_size={} | overlap={}",
+        len(text),
+        len(result),
+        chunk_size,
+        overlap,
     )
 
     return result
@@ -258,12 +266,14 @@ def chunk_by_article(
     chunk_index = 0
     for section in sections:
         if count_tokens(section) <= max_chunk_size:
-            chunks.append(Chunk(
-                text=section,
-                index=chunk_index,
-                token_count=count_tokens(section),
-                metadata={**meta, "chunk_strategy": "by_article"},
-            ))
+            chunks.append(
+                Chunk(
+                    text=section,
+                    index=chunk_index,
+                    token_count=count_tokens(section),
+                    metadata={**meta, "chunk_strategy": "by_article"},
+                )
+            )
             chunk_index += 1
         else:
             # Article too long: split recursively but keep article metadata
@@ -279,7 +289,9 @@ def chunk_by_article(
 
     logger.info(
         "Article chunking | sections={} | chunks={} | input_chars={}",
-        len(sections), len(chunks), len(text),
+        len(sections),
+        len(chunks),
+        len(text),
     )
 
     return chunks

@@ -1,7 +1,6 @@
 # src/db/chunks_repo.py
 from dataclasses import dataclass
 
-import asyncpg
 from loguru import logger
 
 from src.db.database import get_connection
@@ -10,6 +9,7 @@ from src.db.database import get_connection
 @dataclass
 class ChunkRecord:
     """A chunk retrieved from pgvector with its similarity score."""
+
     id: int
     document_id: int
     chunk_index: int
@@ -19,7 +19,7 @@ class ChunkRecord:
     page_number: int | None
     section_title: str | None
     similarity: float  # cosine similarity (1 - cosine distance)
-    filename: str      # from joined documents table
+    filename: str  # from joined documents table
 
 
 async def insert_document(
@@ -45,7 +45,9 @@ async def insert_document(
             VALUES ($1, $2, $3)
             RETURNING id
             """,
-            filename, doc_type, source_url,
+            filename,
+            doc_type,
+            source_url,
         )
     logger.info("Document inserted | id={} | filename={}", doc_id, filename)
     return doc_id
@@ -94,7 +96,8 @@ async def insert_chunks(
 
     logger.info(
         "Chunks inserted | document_id={} | count={}",
-        document_id, len(chunks_data),
+        document_id,
+        len(chunks_data),
     )
     return len(chunks_data)
 

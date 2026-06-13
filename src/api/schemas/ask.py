@@ -1,6 +1,8 @@
 # src/api/schemas/ask.py
 from typing import Literal
+
 from pydantic import BaseModel, Field
+
 
 class AskRequest(BaseModel):
     question: str = Field(
@@ -26,6 +28,7 @@ class AskRequest(BaseModel):
         default="naive",
         description="Retrieval strategy: naive (cosine), hybrid (BM25+RRF), reranked (cross-encoder), hyde (hypothetical document).",
     )
+
 
 class Citation(BaseModel):
     document: str

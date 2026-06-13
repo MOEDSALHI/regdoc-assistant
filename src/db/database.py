@@ -1,6 +1,6 @@
 # src/db/database.py
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator
 
 import asyncpg
 from loguru import logger

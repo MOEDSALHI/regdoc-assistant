@@ -8,7 +8,6 @@ Run: uv run python tests/evaluation/evaluate.py
 
 import asyncio
 import json
-import os
 import sys
 from pathlib import Path
 
@@ -21,6 +20,7 @@ from tests.evaluation.metrics import evaluate_sample
 API_BASE = "http://localhost:8000"
 
 RETRIEVAL_MODE = sys.argv[1] if len(sys.argv) > 1 else "naive"
+
 
 async def call_pipeline(question: str, client: httpx.AsyncClient) -> dict:
     """Call /ask and return answer + contexts."""
@@ -48,7 +48,7 @@ async def main():
 
     async with httpx.AsyncClient() as http_client:
         for i, qa in enumerate(GROUND_TRUTH_QA):
-            print(f"\n[{i+1}/{len(GROUND_TRUTH_QA)}] {qa['question'][:70]}...")
+            print(f"\n[{i + 1}/{len(GROUND_TRUTH_QA)}] {qa['question'][:70]}...")
             try:
                 pipeline_out = await call_pipeline(qa["question"], http_client)
                 scores = await evaluate_sample(
@@ -66,7 +66,7 @@ async def main():
                     f"recall={scores['context_recall']:.2f} | "
                     f"precision={scores['context_precision']:.2f}"
                 )
-                # await asyncio.sleep(10) 
+                # await asyncio.sleep(10)
             except Exception as e:
                 print(f"  ✗ Failed: {e}")
 

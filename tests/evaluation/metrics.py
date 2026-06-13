@@ -9,9 +9,10 @@ import asyncio
 import json
 import os
 import re
-from dotenv import load_dotenv
 
+from dotenv import load_dotenv
 from mistralai.client import Mistral
+
 load_dotenv()
 
 client = Mistral(api_key=os.environ["MISTRAL_API_KEY"])
@@ -105,9 +106,7 @@ Return ONLY a JSON array of 3 question strings, nothing else."""
     return round(sum(similarities) / len(similarities), 3)
 
 
-async def context_recall(
-    question: str, ground_truth: str, contexts: list[str]
-) -> float:
+async def context_recall(question: str, ground_truth: str, contexts: list[str]) -> float:
     """
     Measures: did retrieval capture all information needed to answer correctly?
     Method: check if each sentence of ground_truth is attributable to retrieved contexts.
@@ -136,9 +135,7 @@ Answer with ONLY "yes" or "no"."""
     return round(attributed / len(sentences), 3)
 
 
-async def context_precision(
-    question: str, ground_truth: str, contexts: list[str]
-) -> float:
+async def context_precision(question: str, ground_truth: str, contexts: list[str]) -> float:
     """
     Measures: are the retrieved contexts all relevant? Penalizes noise in high positions.
     Method: for each context, judge relevance → weighted precision (position matters).

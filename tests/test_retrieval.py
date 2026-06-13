@@ -1,7 +1,6 @@
 # tests/test_retrieval.py
-import pytest
-from src.rag.ingestion import extract_text_from_string
 from src.embeddings.chunker import chunk_by_article, select_chunking_strategy
+from src.rag.ingestion import extract_text_from_string
 
 REGULATORY_TEXT = """
 Article 5 - Conservation des donnees

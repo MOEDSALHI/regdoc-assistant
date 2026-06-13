@@ -53,8 +53,8 @@ def extract_text_from_pdf(pdf_path: Path) -> list[dict]:
     """
     try:
         from pypdf import PdfReader
-    except ImportError:
-        raise ImportError("pypdf is required: uv add pypdf")
+    except ImportError as exc:
+        raise ImportError("pypdf is required: uv add pypdf") from exc
 
     reader = PdfReader(str(pdf_path))
     pages = []
@@ -92,7 +92,7 @@ async def ingest_document(
     chunk_size: int = 512,
     overlap: int = 64,
     force_reingest: bool = False,
-    filename: str | None = None, 
+    filename: str | None = None,
 ) -> dict:
     """
     Full ingestion pipeline: source → chunks → embeddings → pgvector.
@@ -123,7 +123,7 @@ async def ingest_document(
         pages = extract_text_from_pdf(source)
     else:
         # Plain text input (for testing)
-        filename = filename or "inline_text.txt" 
+        filename = filename or "inline_text.txt"
         pages = extract_text_from_string(source)
 
     # Step 1 — Idempotency check
@@ -132,7 +132,8 @@ async def ingest_document(
         logger.info(
             "Document '{}' already ingested (id={}). Skipping. "
             "Use force_reingest=True to re-ingest.",
-            filename, existing_id,
+            filename,
+            existing_id,
         )
         return {"doc_id": existing_id, "chunks_count": 0, "skipped": True}
 
@@ -187,7 +188,7 @@ async def ingest_document(
                 "section_title": chunk.metadata.get("section_title"),
                 "embedding": embedding,
             }
-            for chunk, embedding in zip(all_chunks, embeddings)
+            for chunk, embedding in zip(all_chunks, embeddings, strict=True)
         ]
 
         await insert_chunks(doc_id, chunks_data)
@@ -213,7 +214,10 @@ async def ingest_document(
 
     logger.info(
         "Ingestion complete | doc_id={} | file={} | chunks={} | latency={:.0f}ms",
-        doc_id, filename, len(all_chunks), latency_ms,
+        doc_id,
+        filename,
+        len(all_chunks),
+        latency_ms,
     )
 
     return summary

@@ -1,5 +1,6 @@
 # tests/test_embedder.py
 import pytest
+
 from src.embeddings.embedder import cosine_similarity
 
 # cosine_similarity is a pure function — no API call needed

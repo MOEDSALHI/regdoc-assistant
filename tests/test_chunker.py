@@ -1,11 +1,10 @@
 # tests/test_chunker.py
-import pytest
 from src.embeddings.chunker import (
+    Chunk,
+    chunk_by_article,
     chunk_fixed_size,
     chunk_recursive,
-    chunk_by_article,
     select_chunking_strategy,
-    Chunk,
 )
 
 SAMPLE_RGPD = """

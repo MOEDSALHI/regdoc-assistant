@@ -1,7 +1,5 @@
 # src/embeddings/embedder.py
-import asyncio
 import time
-from typing import Any
 
 from loguru import logger
 from tenacity import retry, stop_after_attempt, wait_exponential
@@ -126,7 +124,7 @@ def cosine_similarity(vec_a: list[float], vec_b: list[float]) -> float:
     Returns:
         Cosine similarity score between -1.0 and 1.0.
     """
-    dot_product = sum(a * b for a, b in zip(vec_a, vec_b))
+    dot_product = sum(a * b for a, b in zip(vec_a, vec_b, strict=True))
     magnitude_a = sum(a * a for a in vec_a) ** 0.5
     magnitude_b = sum(b * b for b in vec_b) ** 0.5
 

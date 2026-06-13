@@ -1,10 +1,11 @@
 # src/rag/parent_child.py
 import re
 import time
+
 from loguru import logger
 
 from src.db.database import get_connection
-from src.embeddings.chunker import Chunk, chunk_by_article, chunk_fixed_size
+from src.embeddings.chunker import chunk_fixed_size
 from src.embeddings.embedder import embed_batch
 from src.services.token_counter import count_tokens
 
@@ -125,8 +126,9 @@ async def ingest_parent_child(
                     str(embedding),
                     parent_db_ids[parent_idx],
                 )
-                for i, ((child_text, parent_idx), embedding)
-                in enumerate(zip(all_children, child_embeddings))
+                for i, ((child_text, parent_idx), embedding) in enumerate(
+                    zip(all_children, child_embeddings, strict=True)
+                )
             ],
         )
 
@@ -243,9 +245,7 @@ async def retrieve_with_parent(
 
     # Reorder parents to match the child retrieval order
     parent_map = {row["id"]: row for row in parent_rows}
-    ordered_parents = [
-        parent_map[pid] for pid in parent_ids_ordered if pid in parent_map
-    ]
+    ordered_parents = [parent_map[pid] for pid in parent_ids_ordered if pid in parent_map]
 
     latency_ms = (time.perf_counter() - start) * 1000
     logger.info(

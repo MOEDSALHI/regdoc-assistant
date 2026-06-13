@@ -35,17 +35,14 @@ _INDIRECT_INJECTION_PATTERNS = [
     r"<!-{2,}.*?-{2,}>",  # HTML comments with instructions
 ]
 
-_COMPILED_DIRECT = [
-    re.compile(p, re.IGNORECASE) for p in _DIRECT_INJECTION_PATTERNS
-]
-_COMPILED_INDIRECT = [
-    re.compile(p, re.IGNORECASE) for p in _INDIRECT_INJECTION_PATTERNS
-]
+_COMPILED_DIRECT = [re.compile(p, re.IGNORECASE) for p in _DIRECT_INJECTION_PATTERNS]
+_COMPILED_INDIRECT = [re.compile(p, re.IGNORECASE) for p in _INDIRECT_INJECTION_PATTERNS]
 
 
 # ---------------------------------------------------------------------------
 # DETECTION FUNCTIONS
 # ---------------------------------------------------------------------------
+
 
 def detect_direct_injection(user_input: str) -> bool:
     """
@@ -160,8 +157,7 @@ def build_sandwiched_user_message(
         Formatted user message string.
     """
     context_block = "\n\n---\n\n".join(
-        f"[Chunk {i + 1}]\n{chunk}"
-        for i, chunk in enumerate(context_chunks)
+        f"[Chunk {i + 1}]\n{chunk}" for i, chunk in enumerate(context_chunks)
     )
 
     return f"""## Available context documents

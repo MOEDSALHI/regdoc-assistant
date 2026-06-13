@@ -73,7 +73,7 @@ def rerank(
 
     # Pair each chunk with its score and sort descending
     ranked = sorted(
-        zip(chunks, scores.tolist()),
+        zip(chunks, scores.tolist(), strict=True),
         key=lambda x: x[1],
         reverse=True,
     )
@@ -83,8 +83,7 @@ def rerank(
 
     latency_ms = (time.perf_counter() - start) * 1000
     logger.info(
-        "Rerank | chunks_in={} | chunks_out={} | "
-        "best={:.3f} | worst={:.3f} | latency={:.0f}ms",
+        "Rerank | chunks_in={} | chunks_out={} | best={:.3f} | worst={:.3f} | latency={:.0f}ms",
         len(chunks),
         len(ranked),
         ranked[0][1] if ranked else 0,
@@ -160,10 +159,7 @@ async def retrieve_and_rerank(
     ranked = rerank(question, texts, top_k=top_k_rerank)
 
     # Rebuild formatted chunks with metadata in original order
-    text_to_meta = {text: meta for text, meta in zip(texts, metadata)}
-    result = [
-        f"{text_to_meta.get(chunk_text, '')}\n{chunk_text}"
-        for chunk_text, _ in ranked
-    ]
+    text_to_meta = {text: meta for text, meta in zip(texts, metadata, strict=True)}
+    result = [f"{text_to_meta.get(chunk_text, '')}\n{chunk_text}" for chunk_text, _ in ranked]
 
     return result

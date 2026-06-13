@@ -32,12 +32,13 @@ async def lifespan(app: FastAPI):
         settings.app_env,
         settings.mistral_model,
     )
-    await init_pool()       # initialize asyncpg connection pool
-    await apply_schema()    # create tables/indexes if not exist (idempotent)
+    await init_pool()  # initialize asyncpg connection pool
+    await apply_schema()  # create tables/indexes if not exist (idempotent)
     logger.info("Database ready")
 
     # Précharger le cross-encoder au démarrage — évite 35s au premier appel
     from src.rag.reranker import _get_reranker
+
     _get_reranker()
     logger.info("Cross-encoder ready")
 

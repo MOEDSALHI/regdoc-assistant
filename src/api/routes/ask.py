@@ -17,18 +17,17 @@ from src.prompts.rag_prompts import (
     RAG_STRUCTURED_SYSTEM_PROMPT,
     parse_structured_response,
 )
+from src.rag.hybrid_search import hybrid_search
+from src.rag.query_expansion import hyde_retrieve
+from src.rag.reranker import retrieve_and_rerank
+from src.rag.retrieval import retrieve_chunks
 from src.security.prompt_guard import (
+    build_sandwiched_user_message,
     detect_direct_injection,
     sanitize_chunks,
-    build_sandwiched_user_message,
 )
 from src.services.llm_client import chat_complete
 from src.services.token_counter import fits_in_context, log_context_breakdown
-
-from src.rag.retrieval import retrieve_chunks
-from src.rag.hybrid_search import hybrid_search
-from src.rag.reranker import retrieve_and_rerank
-from src.rag.query_expansion import hyde_retrieve
 
 router = APIRouter(tags=["rag"])
 
@@ -47,6 +46,8 @@ def _classify_llm_error(exc: Exception) -> str:
     if isinstance(exc, TimeoutError) or "timeout" in str(exc).lower():
         return "timeout"
     return "other"
+
+
 # async def _retrieve_chunks_stub(question: str, top_k: int) -> list[str]:
 #     """
 #     Stub retriever — returns hardcoded RGPD/CNIL chunks for any question.
@@ -98,10 +99,12 @@ async def ask(request: AskRequest) -> AskResponse:
         )
 
     # Real retrieval from pgvector
-    mode = request.retrieval_mode   # MOVED UP (now used in metrics labels)
+    mode = request.retrieval_mode  # MOVED UP (now used in metrics labels)
     logger.info(
         "RAG query | question='{}' | top_k={} | mode={}",
-        request.question, request.top_k, mode,
+        request.question,
+        request.top_k,
+        mode,
     )
 
     try:
@@ -136,13 +139,10 @@ async def ask(request: AskRequest) -> AskResponse:
             )
 
         # observe retrieval metrics
-        RAG_RETRIEVAL_DURATION.labels(mode=mode).observe(
-            time.perf_counter() - t_retrieval
-        )
+        RAG_RETRIEVAL_DURATION.labels(mode=mode).observe(time.perf_counter() - t_retrieval)
         RAG_CHUNKS_RETRIEVED.labels(mode=mode).observe(len(raw_chunks))
 
         chunks = sanitize_chunks(raw_chunks)  # Defense 2 — indirect injection
-
 
         if not chunks:
             # No relevant chunks found — return cannot_answer directly

@@ -1,21 +1,19 @@
 # tests/test_rag_prompts.py
-import json
-import pytest
 from src.prompts.rag_prompts import (
+    RAG_STRUCTURED_SYSTEM_PROMPT,
+    RAG_SYSTEM_PROMPT,
+    build_cot_analysis_messages,
+    build_few_shot_compliance_messages,
     build_rag_messages,
     build_rag_structured_messages,
     build_simple_messages,
-    build_few_shot_compliance_messages,
-    build_cot_analysis_messages,
     parse_structured_response,
-    RAG_SYSTEM_PROMPT,
-    RAG_STRUCTURED_SYSTEM_PROMPT,
 )
-
 
 # ---------------------------------------------------------------------------
 # Message builders
 # ---------------------------------------------------------------------------
+
 
 def test_build_simple_messages_no_system():
     msgs = build_simple_messages("What is GDPR?")
@@ -77,6 +75,7 @@ def test_build_cot_analysis_messages_structure():
 # ---------------------------------------------------------------------------
 # JSON parser
 # ---------------------------------------------------------------------------
+
 
 def test_parse_structured_response_valid_json():
     raw = '{"answer": "6 months", "confidence": "HIGH", "citations": [], "cannot_answer": false}'

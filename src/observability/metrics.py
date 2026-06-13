@@ -18,7 +18,7 @@ from prometheus_client import Counter, Histogram
 RAG_QUERIES_TOTAL = Counter(
     "rag_queries_total",
     "Total number of /ask requests, by retrieval mode and outcome.",
-    ["mode", "status"],   # status: "success" | "error"
+    ["mode", "status"],  # status: "success" | "error"
 )
 
 

@@ -1,5 +1,6 @@
 # src/rag/query_expansion.py
 import time
+
 from loguru import logger
 
 from src.services.llm_client import chat_complete
@@ -88,8 +89,8 @@ async def retrieve_with_expansion(
     Returns:
         Formatted chunk strings merged and ranked by RRF.
     """
+    from src.db.chunks_repo import ChunkRecord, similarity_search
     from src.embeddings.embedder import embed_text
-    from src.db.chunks_repo import similarity_search, ChunkRecord
 
     start = time.perf_counter()
 
@@ -109,7 +110,6 @@ async def retrieve_with_expansion(
         all_result_lists.append(results)
 
     # Step 4 — RRF fusion across all result lists
-    from src.rag.hybrid_search import _reciprocal_rank_fusion
 
     # Convert to format expected by _reciprocal_rank_fusion
     # We merge pairwise: list1 + list2, then result + list3, etc.
@@ -130,8 +130,7 @@ async def retrieve_with_expansion(
     # RRF score: sum of 1/(k + rank) across all query lists
     k = 60
     rrf_scores = {
-        chunk_id: sum(1.0 / (k + r) for r in ranks)
-        for chunk_id, ranks in chunk_ranks.items()
+        chunk_id: sum(1.0 / (k + r) for r in ranks) for chunk_id, ranks in chunk_ranks.items()
     }
 
     sorted_ids = sorted(rrf_scores, key=lambda x: rrf_scores[x], reverse=True)
@@ -189,13 +188,13 @@ async def hyde_retrieve(
     Returns:
         Formatted chunk strings retrieved using the hypothetical document embedding.
     """
-    from src.embeddings.embedder import embed_text
     from src.db.chunks_repo import similarity_search
+    from src.embeddings.embedder import embed_text
 
     start = time.perf_counter()
 
     # Step 1 — generate hypothetical document
-    hyde_prompt = f"""Write a short passage (3-5 sentences) from a French regulatory document 
+    hyde_prompt = f"""Write a short passage (3-5 sentences) from a French regulatory document
 (RGPD, CNIL recommendation, or ANSSI guide) that would directly answer this question.
 Write as if you are quoting from an official regulatory text.
 Do NOT say "this passage answers the question" — just write the passage directly.

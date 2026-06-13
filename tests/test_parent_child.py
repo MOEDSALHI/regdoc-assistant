@@ -1,9 +1,8 @@
 # tests/test_parent_child.py
-import pytest
 import re
 
-
 # ── Pattern detection tests (pure logic) ──────────────────────────────────────
+
 
 def _find_article_sections(text: str) -> list[str]:
     """Mirror the pattern from ingest_parent_child for testing."""
@@ -14,7 +13,7 @@ def _find_article_sections(text: str) -> list[str]:
     sections = []
     for i, match in enumerate(matches):
         start = match.start()
-        end = matches[i+1].start() if i+1 < len(matches) else len(text)
+        end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
         section = text[start:end].strip()
         if section:
             sections.append(section)
@@ -63,9 +62,9 @@ def test_article_detection_preserves_content():
 def test_child_filter_removes_short_fragments():
     """Verify that micro-fragments under 5 words are filtered."""
     children_with_text = [
-        ("tematique et approfondie", 0),    # 3 words → should be filtered
+        ("tematique et approfondie", 0),  # 3 words → should be filtered
         ("Le DPIA est obligatoire pour les traitements a risque eleve.", 0),  # OK
-        ("oui", 0),                          # 1 word → filtered
+        ("oui", 0),  # 1 word → filtered
         ("Article 35 analyse impact DPIA traitement risque", 0),  # OK
     ]
     MIN_WORDS = 5

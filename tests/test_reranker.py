@@ -1,5 +1,4 @@
 # tests/test_reranker.py
-import pytest
 from src.rag.reranker import rerank
 
 

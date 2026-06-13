@@ -100,6 +100,7 @@ COMPLIANCE_EXAMPLES = [
 # MESSAGE BUILDERS
 # ---------------------------------------------------------------------------
 
+
 def build_rag_messages(
     question: str,
     context_chunks: list[str],
@@ -121,8 +122,7 @@ def build_rag_messages(
     """
     # Format retrieved chunks into a numbered context block
     context_block = "\n\n---\n\n".join(
-        f"[Chunk {i + 1}]\n{chunk}"
-        for i, chunk in enumerate(context_chunks)
+        f"[Chunk {i + 1}]\n{chunk}" for i, chunk in enumerate(context_chunks)
     )
 
     user_message = f"""## Available context documents
@@ -246,6 +246,7 @@ def build_cot_analysis_messages(practice_description: str) -> list[dict]:
 # ---------------------------------------------------------------------------
 # JSON PARSER
 # ---------------------------------------------------------------------------
+
 
 def parse_structured_response(raw: str) -> dict:
     """

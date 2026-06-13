@@ -18,13 +18,14 @@ class RankedChunk:
     Keeping vector_rank and bm25_rank visible is intentional —
     it lets us audit why a chunk was ranked where it was.
     """
+
     text: str
     filename: str
     page_number: int | None
     section_title: str | None
     rrf_score: float
-    vector_rank: int | None   # None if not in vector results
-    bm25_rank: int | None     # None if not in BM25 results
+    vector_rank: int | None  # None if not in vector results
+    bm25_rank: int | None  # None if not in BM25 results
     vector_score: float | None
 
 
@@ -104,9 +105,7 @@ def _bm25_search(
 
     # Pair each chunk with its score, filter zeros, sort descending
     scored = [
-        (chunk, float(score))
-        for chunk, score in zip(corpus, scores)
-        if score > 0
+        (chunk, float(score)) for chunk, score in zip(corpus, scores, strict=True) if score > 0
     ]
     scored.sort(key=lambda x: x[1], reverse=True)
 
@@ -133,11 +132,11 @@ def _reciprocal_rank_fusion(
     """
     # Build rank maps: chunk_id -> rank (1-indexed)
     vector_ranks = {r.id: rank + 1 for rank, r in enumerate(vector_results)}
-    bm25_ranks   = {r.id: rank + 1 for rank, (r, _) in enumerate(bm25_results)}
+    bm25_ranks = {r.id: rank + 1 for rank, (r, _) in enumerate(bm25_results)}
 
     # Lookup maps for chunk objects
     vector_map = {r.id: r for r in vector_results}
-    bm25_map   = {r.id: r for r, _ in bm25_results}
+    bm25_map = {r.id: r for r, _ in bm25_results}
     all_chunks = {**bm25_map, **vector_map}  # vector_map wins on conflict
 
     all_ids = set(vector_ranks) | set(bm25_ranks)
@@ -158,16 +157,18 @@ def _reciprocal_rank_fusion(
     results = []
     for chunk_id in sorted_ids[:top_k]:
         chunk = all_chunks[chunk_id]
-        results.append(RankedChunk(
-            text=chunk.text,
-            filename=chunk.filename,
-            page_number=chunk.page_number,
-            section_title=chunk.section_title,
-            rrf_score=rrf_scores[chunk_id],
-            vector_rank=vector_ranks.get(chunk_id),
-            bm25_rank=bm25_ranks.get(chunk_id),
-            vector_score=chunk.similarity if chunk_id in vector_map else None,
-        ))
+        results.append(
+            RankedChunk(
+                text=chunk.text,
+                filename=chunk.filename,
+                page_number=chunk.page_number,
+                section_title=chunk.section_title,
+                rrf_score=rrf_scores[chunk_id],
+                vector_rank=vector_ranks.get(chunk_id),
+                bm25_rank=bm25_ranks.get(chunk_id),
+                vector_score=chunk.similarity if chunk_id in vector_map else None,
+            )
+        )
 
     return results
 
@@ -232,15 +233,22 @@ async def hybrid_search(
     latency_ms = (time.perf_counter() - start) * 1000
     logger.info(
         "Hybrid search | q='{}' | vector={} | bm25={} | final={} | {:.0f}ms",
-        question[:50], len(vector_results), len(bm25_results),
-        len(ranked), latency_ms,
+        question[:50],
+        len(vector_results),
+        len(bm25_results),
+        len(ranked),
+        latency_ms,
     )
 
     # Log rank breakdown for debugging
     for i, r in enumerate(ranked):
         logger.debug(
             "  #{} rrf={:.4f} | vec_rank={} bm25_rank={} | {}",
-            i + 1, r.rrf_score, r.vector_rank, r.bm25_rank, r.text[:60],
+            i + 1,
+            r.rrf_score,
+            r.vector_rank,
+            r.bm25_rank,
+            r.text[:60],
         )
 
     # Step 4 — format with source metadata
